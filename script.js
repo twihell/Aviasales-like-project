@@ -96,17 +96,25 @@ const trace = (data_array, nestedKey) => {
     return cityArray;
 };
 
-const loadTickets = () => {
-    if (userInput.from && userInput.to && userInput.date) {
-       
-        getTickets(calendar, (data) => {
-            console.log(data);
-        })
-    } else {
-        console.log("fill in all fields");
-    }
-    
+const renderCheapDay = (cheapTicket) => {
+    console.log(cheapTicket);
 };
+
+const renderCheapYear = (cheapTicket) => {
+    console.log(cheapTicket);
+};
+
+const renderTickets = (data, date) => {
+    const cheapTicket = JSON.parse(data).best_prices;
+    
+    const cheapTicketDay = cheapTicket.filter((item) => {
+       return item.depart_date === date;
+    });
+
+    renderCheapYear(cheapTicket);
+    renderCheapDay(cheapTicketDay);
+};
+
 
 const getTickets = (url, callback) => {
     const request = new XMLHttpRequest();
@@ -154,7 +162,22 @@ inputDateDepart.addEventListener("change", (event) => {
     userInput.date = event.target.value;
 });
 
-submitButton.addEventListener("click", loadTickets);
+submitButton.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (userInput.from && userInput.to && userInput.date) {
+       
+        getTickets(calendar, (data) => {
+           renderTickets(data, userInput.date);
+        })
+    } else {
+        console.log("fill in all fields");
+    }
+    
+    
+    formSearch.reset();
+});
+
 
 //function calls/triggers
 getData(citiesApi, (data) => {
@@ -162,10 +185,6 @@ getData(citiesApi, (data) => {
 
 });
 
-// getData(calendar + "/submit?" + "depart_date=2020-05-25&origin=SVX&destination=KGD&one_way=true&token=" + API_KEY, (data) => {
-//     const cheapTicket = JSON.parse(data).best_prices.filter(item => item.depart_date === "2020-05-25")
-//     console.log(cheapTicket);
-// });
 
 
 

@@ -183,8 +183,9 @@ formSearch.addEventListener("submit", (event) => {
         }).iata,
         date: inputDateDepart.value
     };
-    const requestData = "?depart_date=" + userInput.date + "&origin=" + userInput.from + "&destination=" + userInput.to + 
-    "&one_way=true&token=" + API_KEY;
+
+    const requestData = `?depart_date=${userInput.date}&origin=${userInput.from}` + 
+    `&destination=${userInput.to}&one_way=true&token=${API_KEY}`;
 
     getData(calendar + requestData, (response) => {
         renderTickets(response, userInput.date);

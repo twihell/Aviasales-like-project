@@ -49,13 +49,13 @@ const showCity = (input, list) => {
 
     if (input.value !== "") {
 
-        const filterCity = trace(city, "en").filter(({name}) => {    //gets a callback function
+        const filterCity = trace(city, "en").filter(({ name }) => {    //gets a callback function
             const fixItem = name.toLowerCase();
 
-            return fixItem.includes(input.value.toLowerCase());
+            return fixItem.startsWith(input.value.toLowerCase());
         });
 
-        filterCity.forEach(({name, iata}) => {
+        filterCity.forEach(({ name, iata }) => {
             const li = document.createElement("li");
             li.classList.add("dropdown__city");
             li.dataset["iata"] = iata;
@@ -76,12 +76,12 @@ const handlerCity = (event, input, list) => {
 
 const trace = (data_array, nestedKey) => {
     let cityArray = [];
-    
+
     for (let i = 0; i < data_array.length; i++) {
         const arrayItem = data_array[i];
         for (let key in arrayItem) {
             let nestedItem = arrayItem[key];
-            
+
             if (typeof nestedItem === "object" && nestedItem && nestedKey in nestedItem) {
                 let cityObject = {
                     name: nestedItem[nestedKey],
@@ -106,9 +106,13 @@ const renderCheapYear = (cheapTicket) => {
 
 const renderTickets = (data, date) => {
     const cheapTicket = JSON.parse(data).best_prices;
-    
+
+    cheapTicket.sort((firstTicket, nextTicket) => {
+        return firstTicket.value - nextTicket.value;
+    })
+
     const cheapTicketDay = cheapTicket.filter((item) => {
-       return item.depart_date === date;
+        return item.depart_date === date;
     });
 
     renderCheapYear(cheapTicket);
@@ -119,8 +123,8 @@ const renderTickets = (data, date) => {
 const getTickets = (url, callback) => {
     const request = new XMLHttpRequest();
     let params = "origin=" + encodeURIComponent(userInput.from) +
-    "&destination=" + encodeURIComponent(userInput.to) + "&depart_date=" +
-    encodeURIComponent(userInput.date) + "&one_way=true" + "&token=" + API_KEY;
+        "&destination=" + encodeURIComponent(userInput.to) + "&depart_date=" +
+        encodeURIComponent(userInput.date) + "&one_way=true" + "&token=" + API_KEY;
     request.open("GET", url + "/submit?" + params, true);
     request.onreadystatechange = () => {
         if (request.readyState !== 4) return;
@@ -149,7 +153,7 @@ inputCitiesTo.addEventListener("input", () => {
 dropdownCitiesFrom.addEventListener("click", (event) => {
     handlerCity(event, inputCitiesFrom, dropdownCitiesFrom);
     userInput.from = event.target.dataset["iata"];
-    
+
 });
 
 
@@ -166,15 +170,17 @@ submitButton.addEventListener("click", (event) => {
     event.preventDefault();
 
     if (userInput.from && userInput.to && userInput.date) {
-       
+
         getTickets(calendar, (data) => {
-           renderTickets(data, userInput.date);
-        })
+            renderTickets(data, userInput.date);
+        });
+    } else if (userInput.from === "" || userInput.to === "" || userInput.date === "") {
+        alert("fill in all fields");
     } else {
-        console.log("fill in all fields");
+        alert("enter correct city name");
     }
-    
-    
+
+
     formSearch.reset();
 });
 

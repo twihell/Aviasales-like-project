@@ -48,20 +48,33 @@ const showCity = (input, list) => {
         const filterCity = trace(city, "en").filter((item) => {    //gets a callback function
             const fixItem = item.name.toLowerCase();
 
-            return fixItem.includes(input.value.toLowerCase());
+            return fixItem.startsWith(input.value.toLowerCase());
+
 
         });
 
-        filterCity.forEach((item) => {
+        filterCity.sort((firstItem, nextItem) => {
+            if (firstItem.name > nextItem.name) {
+                return 1;
+            } if (firstItem.name < nextItem.name) {
+                return -1;
+            }
+            return 0;
+
+        }).forEach((item) => {
+
             const li = document.createElement("li");
             li.classList.add("dropdown__city");
             // li.dataset["iata"] = iata;
             li.textContent = item.name;
             list.append(li);
         });
+
+
     }
 
 };
+
 
 const handlerCity = (event, input, list) => {
     const target = event.target;
@@ -88,10 +101,13 @@ const trace = (data_array, nestedKey) => {
 
                 cityArray.push(cityObject);
 
+
             }
+
         }
 
     }
+
     return cityArray;
 };
 
@@ -116,9 +132,17 @@ const renderCheapYear = (cheapTicket) => {
 
 const renderTickets = (data, date) => {
     const cheapTicket = JSON.parse(data).best_prices;
-    
+
+    cheapTicket.sort((firstTicket, nextTicket) => {
+        return firstTicket.value - nextTicket.value;
+        // let firstFormattedDate = new Date(firstTicket.depart_date);
+        // let nextFormattedDate = new Date(nextTicket.depart_date);
+        // return firstFormattedDate - nextFormattedDate;
+    })
+
+
     const cheapTicketDay = cheapTicket.filter((item) => {
-       return item.depart_date === date;
+        return item.depart_date === date;
     });
 
     renderCheapYear(cheapTicket);
@@ -177,19 +201,22 @@ formSearch.addEventListener("submit", (event) => {
     const userInput = {
         from: trace(city, "en").find((item) => {
             return inputCitiesFrom.value === item.name
-        }).iata,
+        }),
         to: trace(city, "en").find((item) => {
             return inputCitiesTo.value === item.name
-        }).iata,
+        }),
         date: inputDateDepart.value
     };
+    if (userInput.from && userInput.to) {
+        const requestData = `?depart_date=${userInput.date}&origin=${userInput.from.iata}` +
+            `&destination=${userInput.to.iata}&one_way=true&token=${API_KEY}`;
 
-    const requestData = `?depart_date=${userInput.date}&origin=${userInput.from}` + 
-    `&destination=${userInput.to}&one_way=true&token=${API_KEY}`;
-
-    getData(calendar + requestData, (response) => {
-        renderTickets(response, userInput.date);
-    })
+        getData(calendar + requestData, (response) => {
+            renderTickets(response, userInput.date);
+        });
+    } else {
+        alert("enter correct city name");
+    }
 
     formSearch.reset();
 });
@@ -197,6 +224,7 @@ formSearch.addEventListener("submit", (event) => {
 //function calls/triggers
 getData(citiesApi, (data) => {
     city = JSON.parse(data);
+
 
 });
 

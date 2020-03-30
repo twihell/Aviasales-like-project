@@ -220,8 +220,6 @@ const renderCheapYear = (cheapTicket) => {
         const ticket = createCard(cheapTicket[i]);
         otherCheapTickets.append(ticket);
     }
-
-    console.log(cheapTicket);
 };
 
 const renderTickets = (data, date) => {

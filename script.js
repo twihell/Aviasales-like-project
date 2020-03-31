@@ -1,10 +1,12 @@
 const formSearch = document.querySelector(".form-search"),
-    inputCitiesFrom = document.querySelector(".input__cities-from"),
-    dropdownCitiesFrom = document.querySelector(".dropdown__cities-from"),
-    inputCitiesTo = document.querySelector(".input__cities-to"),
-    dropdownCitiesTo = document.querySelector(".dropdown__cities-to"),
-    inputDateDepart = document.querySelector(".input__date-depart"),
-    submitButton = document.querySelector(".button__search");
+    inputCitiesFrom = formSearch.querySelector(".input__cities-from"),
+    dropdownCitiesFrom = formSearch.querySelector(".dropdown__cities-from"),
+    inputCitiesTo = formSearch.querySelector(".input__cities-to"),
+    dropdownCitiesTo = formSearch.querySelector(".dropdown__cities-to"),
+    inputDateDepart = formSearch.querySelector(".input__date-depart"),
+    submitButton = formSearch.querySelector(".button__search"),
+    cheapestTicket = document.getElementById("cheapest-ticket"),
+    otherCheapTickets = document.getElementById("other-cheap-tickets");
 
 
 // cities data
@@ -12,7 +14,8 @@ const formSearch = document.querySelector(".form-search"),
 const citiesApi = "dataBase/cities.json",
     proxy = "https://cors-anywhere.herokuapp.com/",
     API_KEY = "dd849c1d50d460a749fb1b93592dd733",
-    calendar = "http://min-prices.aviasales.ru/calendar_preload";
+    calendar = "https://min-prices.aviasales.ru/calendar_preload",
+    MAX_COUNT = 10; //number of otherTickets cards on the page
 
 let city = [];
 let userInput = {
@@ -23,7 +26,7 @@ let userInput = {
 
 //functions
 
-const getData = (url, callback) => {  //"callback" function here is a reference to getData (data) function
+const getData = (url, callback, reject = console.error) => {  //"callback" function here is a reference to getData (data) function
     const request = new XMLHttpRequest();
 
     request.open("GET", url);
@@ -34,7 +37,7 @@ const getData = (url, callback) => {  //"callback" function here is a reference 
         if (request.status === 200) {
             callback(request.response);
         } else {
-            console.error(request.status);
+            reject(request.status);
         }
     });
 
@@ -62,6 +65,7 @@ const showCity = (input, list) => {
             li.textContent = name;
             list.append(li);
         });
+
     }
 
 };
@@ -96,13 +100,112 @@ const trace = (data_array, nestedKey) => {
     return cityArray;
 };
 
+const getCityName = (iata) => {
+    const objCity = city.find((item) => item.code === iata);
+
+    return objCity.name_translations.en;
+};
+
+const getDate = (date) => {
+    return new Date(date).toLocaleString("en-GB", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+};
+
+const getChanges = (num) => {
+    if (num) {
+        return num === 1 ? "One change" : "Two changes";
+    } else {
+        return "No changes";
+    }
+
+};
+
+const getLinkAviasales = (data) => {
+    let link = "https://www.aviasales.ru/search/";
+
+    link += data.origin;
+
+    const date = new Date(data.depart_date);
+
+    const day = date.getDate();
+
+    link += day < 10 ? "0" + day : day;
+
+    const month = date.getMonth() + 1;
+
+    link += month < 10 ? "0" + month : month;
+
+    link += data.destination;
+
+    link += "1";
+
+    return link;
+};
+
+const createCard = (data) => {
+    const ticket = document.createElement("article");
+    ticket.classList.add("ticket");
+
+    let deep = "";
+
+    if (data) {
+        deep = `
+        <h3 class="agent">${data.gate}</h3>
+        <div class="ticket__wrapper">
+	        <div class="left-side">
+		        <a href="${getLinkAviasales(data)}" target="_blank" class="button button__buy">Buy for ${data.value}₽</a>
+	        </div>
+	        <div class="right-side">
+		        <div class="block-left">
+			        <div class="city__from">Departure from:
+                        <br>
+				        <span class="city__name">${getCityName(data.origin)}</span>
+			        </div>
+			        <div class="date">${getDate(data.depart_date)}</div>
+		        </div>
+		        <div class="block-right">
+			        <div class="changes">${getChanges(data.number_of_changes)}</div>
+			        <div class="city__to">Destination:
+                        <br>
+				        <span class="city__name">${getCityName(data.destination)}</span>
+			        </div>
+		        </div>
+	        </div>
+        </div>
+        `;
+    } else {
+        deep = "<h3>Unfortunately, there are no tickets for the requested date</h3>";
+    }
+
+    ticket.insertAdjacentHTML("afterbegin", deep);
+
+
+    return ticket;
+
+};
+
 const renderCheapDay = (cheapTicket) => {
-    console.log(cheapTicket);
+    cheapestTicket.style.display = "block";
+    cheapestTicket.innerHTML = "<h2>Самый дешевый билет на выбранную дату</h2>";
+    const ticket = createCard(cheapTicket[0]);
+    cheapestTicket.append(ticket);
 };
 
 const renderCheapYear = (cheapTicket) => {
-    console.log(cheapTicket);
+    otherCheapTickets.style.display = "block";
+    otherCheapTickets.innerHTML = "<h2>Самые дешевые билеты на другие даты</h2>";
+
+    for (let i = 0; i < cheapTicket.length && i < MAX_COUNT; i++) {
+        const ticket = createCard(cheapTicket[i]);
+        otherCheapTickets.append(ticket);
+    }
 };
+
 
 const renderTickets = (data, date) => {
     const cheapTicket = JSON.parse(data).best_prices;
@@ -120,7 +223,7 @@ const renderTickets = (data, date) => {
 };
 
 
-const getTickets = (url, callback) => {
+const getTickets = (url, callback, reject = console.error) => {
     const request = new XMLHttpRequest();
     let params = "origin=" + encodeURIComponent(userInput.from) +
         "&destination=" + encodeURIComponent(userInput.to) + "&depart_date=" +
@@ -132,7 +235,7 @@ const getTickets = (url, callback) => {
         if (request.status === 200) {
             callback(request.response);
         } else {
-            console.error(request.status);
+            reject(request.status);
         }
     }
     request.send();
@@ -173,24 +276,23 @@ submitButton.addEventListener("click", (event) => {
 
         getTickets(calendar, (data) => {
             renderTickets(data, userInput.date);
+
+        }, (error) => {
+            alert("No flights for this destination");
+            console.error("Error", error);
         });
-    } else if (userInput.from === "" || userInput.to === "" || userInput.date === "") {
-        alert("fill in all fields");
-    } else {
+    } else if (inputCitiesFrom.value !== "" || inputCitiesTo.value !== "") {
         alert("enter correct city name");
+    } else {
+        alert("fill in all fields");
     }
-
-
+   
     formSearch.reset();
 });
 
 
 //function calls/triggers
+
 getData(citiesApi, (data) => {
     city = JSON.parse(data);
-
 });
-
-
-
-

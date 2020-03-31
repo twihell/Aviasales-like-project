@@ -14,7 +14,7 @@ const formSearch = document.querySelector(".form-search"),
 const citiesApi = "dataBase/cities.json",
     proxy = "https://cors-anywhere.herokuapp.com/", //This API enables cross-origin requests to anywhere
     API_KEY = "dd849c1d50d460a749fb1b93592dd733",
-    calendar = "http://min-prices.aviasales.ru/calendar_preload",
+    calendar = "https://min-prices.aviasales.ru/calendar_preload",
     MAX_COUNT = 10; //number of otherTickets cards on the page
 
 let city = [];
@@ -298,7 +298,7 @@ formSearch.addEventListener("submit", (event) => {
         const requestData = `?depart_date=${userInput.date}&origin=${userInput.from.iata}` +
             `&destination=${userInput.to.iata}&one_way=true&token=${API_KEY}`;
 
-        getData(calendar + requestData, (response) => {
+        getData(proxy + calendar + requestData, (response) => {
             renderTickets(response, userInput.date);
         }, (error) => {
             alert ("No flights for this destination");
@@ -314,7 +314,6 @@ formSearch.addEventListener("submit", (event) => {
 //function calls/triggers
 getData(citiesApi, (data) => {
     city = JSON.parse(data);
-
 
 });
 

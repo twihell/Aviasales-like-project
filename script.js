@@ -6,7 +6,10 @@ const formSearch = document.querySelector(".form-search"),
     inputDateDepart = formSearch.querySelector(".input__date-depart"),
     submitButton = formSearch.querySelector(".button__search"),
     cheapestTicket = document.getElementById("cheapest-ticket"),
-    otherCheapTickets = document.getElementById("other-cheap-tickets");
+    otherCheapTickets = document.getElementById("other-cheap-tickets"),
+    closeButton = document.getElementsByClassName("close")[0],
+    errorBox = document.getElementById("errorBox"),
+    mainContent = document.getElementById("main-content");
 
 
 // cities data
@@ -240,24 +243,21 @@ const renderTickets = (data, date) => {
     renderCheapYear(cheapTicket);
     renderCheapDay(cheapTicketDay);
 };
-// const getTickets = (url, callback) => {
-//     const request = new XMLHttpRequest();
-//     let params = "origin=" + encodeURIComponent(userInput.from) +
-//     "&destination=" + encodeURIComponent(userInput.to) + "&depart_date=" +
-//     encodeURIComponent(userInput.date) + "&one_way=true" + "&token=" + API_KEY;
-//     request.open("GET", url + "/submit?" + params, true);
-//     request.onreadystatechange = () => {
-//         if (request.readyState !== 4) return;
 
-//         if (request.status === 200) {
-//             callback(request.response);
-//         } else {
-//             console.error(request.status);
-//         }
-//     }
-//     request.send();
-// };
+const showError = (message) => {
+    let closeButtonHtml = `<span class="close">&times;</span>`;
+    errorBox.insertAdjacentHTML("beforeend", message);
+    errorBox.insertAdjacentHTML("afterbegin", closeButtonHtml);
+    errorBox.style.display = "flex";
+    errorBox.classList.add("error-box-onclick");
+    mainContent.classList.add("main-content-onclick");
+};
 
+const closeWindow = () => {
+    errorBox.innerHTML = "";
+    mainContent.classList.remove("main-content-onclick");
+    errorBox.style.display = "none";
+};
 
 
 //event handlers
@@ -301,14 +301,27 @@ formSearch.addEventListener("submit", (event) => {
         getData(proxy + calendar + requestData, (response) => {
             renderTickets(response, userInput.date);
         }, (error) => {
-            alert ("No flights for this destination");
+            let errorMessage = `<span>No flights for this destination</span>`;
+            showError(errorMessage);
             console.error("Error", error);
         });
     } else {
-        alert("enter correct city name");
+        let errorMessage = `<span>Enter correct city name</span>`;
+        showError(errorMessage);
     }
 
     formSearch.reset();
+    userInput.from = null;
+    userInput.to = null;
+});
+
+closeButton.addEventListener("click", () => {
+    closeWindow();
+
+});
+
+window.addEventListener("click", () => {
+    closeWindow();
 });
 
 //function calls/triggers

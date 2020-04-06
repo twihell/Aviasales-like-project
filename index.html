@@ -9,57 +9,64 @@
 </head>
 
 <body>
-	<h1>Авиасалес</h1>
-	<main>
 
-		<section class="wrapper">
-			<form class="form-search" action="/submit" method="GET">
-				<div class="wrapper__search">
-					<div class="input" style="display: block;">
-						<label>Откуда
-							<input type="text" class="input__cities-from" required>
-						</label>
-						<ul class="dropdown dropdown__cities-from">
+	<div class="error-box" id='errorBox'>
+		<span class="close">&times;</span>
+	</div>
 
-						</ul>
+	<div id="main-content">
+		<h1>Авиасалес</h1>
+		<main>
+
+			<section class="wrapper">
+				<form class="form-search" action="/submit" method="GET">
+					<div class="wrapper__search">
+						<div class="input" style="display: block;">
+							<label>Откуда
+								<input type="text" class="input__cities-from" required>
+							</label>
+							<ul class="dropdown dropdown__cities-from">
+
+							</ul>
+						</div>
+
+						<div class="input">
+							<label>Куда
+								<input type="text" class="input__cities-to" required>
+							</label>
+							<ul class="dropdown dropdown__cities-to">
+
+							</ul>
+						</div>
+
+						<div class="input input__cities-from">
+							<label>Отправление
+								<input type="date" class="input__date-depart" required>
+							</label>
+						</div>
 					</div>
 
-					<div class="input">
-						<label>Куда
-							<input type="text" class="input__cities-to" required>
-						</label>
-						<ul class="dropdown dropdown__cities-to">
-
-						</ul>
+					<div class="wrapper__button">
+						<button type="submit" class="button button__search">
+							<span class="button__search-text">Найти билеты</span>
+						</button>
 					</div>
+				</form>
+			</section>
+			<section class="wrapper">
 
-					<div class="input input__cities-from">
-						<label>Отправление
-							<input type="date" class="input__date-depart" required>
-						</label>
-					</div>
-				</div>
+				<section class="wrapper__ticket" id="cheapest-ticket" style="display: none;">
 
-				<div class="wrapper__button">
-					<button type="submit" class="button button__search">
-						<span class="button__search-text">Найти билеты</span>
-					</button>
-				</div>
-			</form>
-		</section>
-		<section class="wrapper">
+				</section>
 
-			<section class="wrapper__ticket" id="cheapest-ticket" style="display: none;">
+				<section class="block__ticket" id="other-cheap-tickets" style="display: none;">
 
+				</section>
 			</section>
 
-			<section class="block__ticket" id="other-cheap-tickets" style="display: none;">
-				
-			</section>
-		</section>
 
-
-	</main>
+		</main>
+	</div>
 
 	<script src="./script.js">
 

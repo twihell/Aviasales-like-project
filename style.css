@@ -15,6 +15,10 @@ body {
     color: #fff;
 }
 
+.main-content-onclick {
+    filter: blur(8px);
+}  
+
 button {
     cursor: pointer;
 }
@@ -288,4 +292,53 @@ input {
     .block-left {
         margin-bottom: 20px;
     }
+}
+
+.error-box {
+    display: none;
+    width: 20%;
+    height: 20%;
+    position: fixed;
+    z-index: 2;
+    background-color: hsl(0, 73%, 45%);
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    text-align: center;
+    padding: auto;
+    left: 40%;
+    top: 30%;
+    min-height: 150px;
+    font-size: 1.375rem;
+    font-style: normal;
+    line-height: 1.4;
+    font-weight: 500;
+    color: inherit;
+    border: none;
+    border-radius: 5px;
+    animation-name: box-movement;
+    animation-duration: 0.2s;
+    animation-direction: normal;
+    animation-timing-function: ease-out;
+}
+
+.error-box-onclick {
+    filter: blur(0) !important;
+}
+
+.close {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+}
+
+.close:hover {
+    cursor: pointer;
+}
+
+@keyframes box-movement {
+    0% {scale: 30%; opacity: 0%;}
+    70% {scale: 50%; opacity: 20%;}
+    95% {scale: 105%; opacity: 80%;}
+    100% { scale: 100%; opacity: 100%;}
 }
